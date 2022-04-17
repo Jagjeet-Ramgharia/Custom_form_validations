@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../components/CheckBox";
 import ImageUpload from "../components/ImageUpload";
@@ -23,6 +23,7 @@ function Home() {
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errMsg, setErrMsg] = React.useState("");
+  const [userData, setUserData] = React.useState({});
   const UserState = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
@@ -65,20 +66,12 @@ function Home() {
   const submitUserInfo = (e) => {
     e.preventDefault();
     const Images = images.image;
-    let userData = { ...UserState.userInfo, Images, preferedLanguage };
-    validations(userData, (err) => {
-      setErrMsg(err.err);
-      if (!!err.err) {
-        setError(true);
-      } else {
-        setError(false);
-      }
-    });
+    setUserData({ ...UserState.userInfo, Images, preferedLanguage });
     if (error === true) {
       console.log(errMsg);
     }
 
-    console.log(errMsg);
+    console.log(error);
 
     // if (err === false) {
     //   console.log(err);
@@ -86,6 +79,19 @@ function Home() {
     //   alert("User Info Saved");
     // }
   };
+
+  useEffect(() => {
+    if (userData.length > 0) {
+      validations(userData, (err) => {
+        setErrMsg(err.err);
+        if (!!err.err) {
+          setError(true);
+        } else {
+          setError(false);
+        }
+      });
+    }
+  }, [error]);
 
   return (
     <div className="w-full h-full flex items-center justify-center">
