@@ -68,6 +68,11 @@ function Home() {
     let userData = { ...UserState.userInfo, Images, preferedLanguage };
     validations(userData, (err) => {
       setErrMsg(err.err);
+      if (!!err.err) {
+        setError(true);
+      } else {
+        setError(false);
+      }
     });
     if (error === true) {
       console.log(errMsg);
