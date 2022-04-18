@@ -24,7 +24,7 @@ const TextInput = ({
         onChange={onchange}
         id={id}
         name={id}
-        minLength={minLength}
+        // minLength={minLength}
       />
     </div>
   );

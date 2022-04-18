@@ -21,6 +21,7 @@ function Home() {
   const [images, setImages] = React.useState({});
   const [preferedLanguage, setPreferedLanguage] = React.useState([]);
   const [pending, setPending] = React.useState(false);
+
   const [error, setError] = React.useState(false);
   const [errMsg, setErrMsg] = React.useState("");
   const [userData, setUserData] = React.useState({});
@@ -42,8 +43,6 @@ function Home() {
     setValue([...value, { child4: "" }]);
   }
 
-  const UserData = [];
-
   const handleChange = (e) => {
     dispatch(setUserInfoStart()); // start loading
     try {
@@ -53,45 +52,96 @@ function Home() {
           [e.target.name]: e.target.value, // e.target.name is the name of the input field
         })
       );
+      const Images = images.image;
+      setUserData({ ...UserState.userInfo, Images, preferedLanguage });
+      const formErrors = validations(userData);
+      if (!!formErrors) {
+        setError(true);
+        setErrMsg(formErrors);
+      } else {
+        setError(false);
+        setErrMsg("");
+      }
     } catch (error) {
       console.log(error);
       dispatch(setUserInfoError()); // stop loading and show error
     }
   };
 
-  const handlePreferedLanguage = (e) => {
-    setPreferedLanguage([...preferedLanguage, e.target.value]);
-  };
+  // useEffect(() => {
+  //   const formErrors = validations(userData);
+  //   if (!!formErrors) {
+  //     setError(true);
+  //     setErrMsg(formErrors);
+  //   } else {
+  //     setError(false);
+  //     setErrMsg("");
+  //   }
+  // }, [userData]);
+
+  // console.log(first);
 
   const submitUserInfo = (e) => {
     e.preventDefault();
-    const Images = images.image;
-    setUserData({ ...UserState.userInfo, Images, preferedLanguage });
-    if (error === true) {
-      console.log(errMsg);
-    }
-
-    console.log(error);
-
-    // if (err === false) {
-    //   console.log(err);
-    //   localStorage.setItem("userInfo", JSON.stringify(userData));
-    //   alert("User Info Saved");
+    // if (!error) {
+    // console.log(err);
+    localStorage.setItem("userInfo", JSON.stringify(userData));
+    alert("User Info Saved");
     // }
   };
 
-  useEffect(() => {
-    if (userData.length > 0) {
-      validations(userData, (err) => {
-        setErrMsg(err.err);
-        if (!!err.err) {
-          setError(true);
-        } else {
-          setError(false);
-        }
-      });
+  function validateEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  }
+
+  const validations = (data) => {
+    // console.log(data);
+    let errors = {};
+    if (!data.firstname) {
+      errors.firstname = "First name is required";
+    } else if (data.firstname.length < 3) {
+      errors.firstname = "First name must be at least 3 characters";
     }
-  }, [error]);
+
+    if (!data.lastname) {
+      errors.lastname = "Last name is required";
+    } else if (lastname.length < 3) {
+      errors.lastname = "Last name must be at least 3 characters";
+    }
+
+    if (!data.dateOfBirth) {
+      errors.dateOfBirth = "Date of birth is required";
+    }
+    if (!data.email) {
+      errors.email = "Email is required";
+    } else if (!validateEmail(data.email)) {
+      errors.email = "Please enter a valid email";
+    }
+    if (!data.number) {
+      errors.number = "Number is required";
+    }
+    if (!data.password) {
+      errors.password = "Password is required";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+    if (!data.confirmPassword) {
+      errors.confirmPassword = "Confirm password is required";
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = "Password and confirm password must be same";
+    }
+    if (!data.preferedLanguage) {
+      errors.language = "Language is required";
+    }
+    return errors;
+  };
+
+  // console.log(errMsg);
+
+  const handlePreferedLanguage = (e) => {
+    setPreferedLanguage([...preferedLanguage, e.target.value]);
+  };
 
   return (
     <div className="w-full h-full flex items-center justify-center">
@@ -101,67 +151,99 @@ function Home() {
           className="w-full my-4 p-4 flex flex-col border rounded-xl"
         >
           <div className="flex items-center justify-between w-full">
-            <TextInput
-              type={"text"}
-              label={"Firstname"}
-              id={"firstname"}
-              // required={true}
-              placeholder={"Jhon"}
-              value={firstname}
-              onchange={handleChange}
-              // minLength={3}
-            />
-            <TextInput
-              type={"text"}
-              label={"Lastname"}
-              id={"lastname"}
-              // required={true}
-              placeholder={"Doe"}
-              value={lastname}
-              onchange={handleChange}
-              // minLength={3}
-            />
+            <div className="flex flex-col w-full mr-1">
+              <TextInput
+                type={"text"}
+                label={"Firstname"}
+                id={"firstname"}
+                // required={true}
+                placeholder={"Jhon"}
+                value={firstname}
+                onchange={handleChange}
+                // minLength={3}
+              />
+              {error && (
+                <span className="text-red-600 text-xs">{errMsg.firstname}</span>
+              )}
+            </div>
+            <div className="flex flex-col w-full mr-1">
+              <TextInput
+                type={"text"}
+                label={"Lastname"}
+                id={"lastname"}
+                // required={true}
+                placeholder={"Doe"}
+                value={lastname}
+                onchange={handleChange}
+                // minLength={3}
+              />
+              {error && (
+                <span className="text-red-600 text-xs">{errMsg.lastname}</span>
+              )}
+            </div>
           </div>
           <div className="flex items-center justify-between w-full">
-            <TextInput
-              type={"text"}
-              label={"Email"}
-              id={"email"}
-              // required={true}
-              placeholder={"JhonDoe@gmail.com"}
-              value={email}
-              onchange={handleChange}
-            />
-            <TextInput
-              type={"number"}
-              label={"Number"}
-              id={"number"}
-              // required={true}
-              placeholder={"JhonDoe@gmail.com"}
-              value={number}
-              onchange={handleChange}
-            />
+            <div className="flex flex-col w-full mr-1">
+              <TextInput
+                type={"text"}
+                label={"Email"}
+                id={"email"}
+                // required={true}
+                placeholder={"JhonDoe@gmail.com"}
+                value={email}
+                onchange={handleChange}
+              />
+              {error && (
+                <span className="text-red-600 text-xs">{errMsg.email}</span>
+              )}
+            </div>
+            <div className="flex flex-col w-full mr-1">
+              <TextInput
+                type={"number"}
+                label={"Number"}
+                id={"number"}
+                // required={true}
+                placeholder={"JhonDoe@gmail.com"}
+                value={number}
+                onchange={handleChange}
+              />
+              {error && (
+                <span className="text-red-600 text-xs">{errMsg.number}</span>
+              )}
+            </div>
           </div>
           <div className="flex items-center justify-between w-full">
-            <TextInput
-              type={"password"}
-              label={"Password"}
-              id={"password"}
-              // required={true}
-              placeholder={"********"}
-              value={password}
-              onchange={handleChange}
-              minLength={8}
-            />
-            <TextInput
-              type={"password"}
-              label={"Confirm Password"}
-              id={"confirmPassword"}
-              // required={true}
-              placeholder={"********"}
-              value={confirmPassword}
-              onchange={handleChange}
-            />
+            <div className="flex flex-col w-full mr-1">
+              <TextInput
+                type={"password"}
+                label={"Password"}
+                id={"password"}
+                // required={true}
+                placeholder={"********"}
+                value={password}
+                onchange={handleChange}
+                minLength={8}
+              />
+              {error && (
+                <span className="text-red-600 text-xs">{errMsg.password}</span>
+              )}
+            </div>
+            <div className="flex flex-col w-full mr-1">
+              <TextInput
+                type={"password"}
+                label={"Confirm Password"}
+                id={"confirmPassword"}
+                // required={true}
+                placeholder={"********"}
+                value={confirmPassword}
+                onchange={handleChange}
+              />
+              {error && (
+                <span className="text-red-600 text-xs">
+                  {errMsg.confirmPassword}
+                </span>
+              )}
+            </div>
           </div>
           {/* {Object.entries(value).map((child, index) => (
             <>
@@ -180,20 +262,27 @@ function Home() {
               Language
             </span>
             <div className="flex items-center justify-between w-full">
-              <RadioInput
-                label={"English"}
-                id={"english"}
-                name={"language"}
-                value={"english"}
-                onchange={handleChange}
-              />
-              <RadioInput
-                label={"French"}
-                id={"french"}
-                name={"language"}
-                value={"french"}
-                onchange={handleChange}
-              />
+              <div className="flex flex-col w-full mr-1">
+                <RadioInput
+                  label={"English"}
+                  id={"english"}
+                  name={"language"}
+                  value={"english"}
+                  onchange={handleChange}
+                />
+                <RadioInput
+                  label={"French"}
+                  id={"french"}
+                  name={"language"}
+                  value={"french"}
+                  onchange={handleChange}
+                />
+                {error && (
+                  <span className="text-red-600 text-xs">
+                    {errMsg.language}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -245,8 +334,9 @@ function Home() {
               />
             </div>
             <button
+              disabled={!!errMsg}
               type="submit"
-              className="bg-purple-600 uppercase rounded-xl w-1/2 self-center py-2 text-white font-semibold hover:bg-purple-500 hover:scale-105"
+              className="bg-purple-600 disabled:bg-slate-700 disabled:scale-100 disabled:cursor-not-allowed uppercase rounded-xl w-1/2 self-center py-2 text-white font-semibold hover:bg-purple-500 hover:scale-105"
             >
               Submit
             </button>
